@@ -1,13 +1,11 @@
 import cv2
-import time
-import sys
 import keyboard
 from HandTrackingModule import HandDetector
 from collections import deque
 
 
-
 def most_frequent(List: list) -> int:
+    """Returns the most frequent value from the last X frames"""
     return max(set(List), key=List.count)
 
 
@@ -39,9 +37,9 @@ def analyze_fingers(sample: int, player) -> list:
                     fingers.append(1)
                 else:
                     fingers.append(0)
-            if len(lmList) >40:
+            if len(lmList) > 40:
                 # Thumb
-                if lmList[tipIds[5]][1] < lmList[tipIds[5] - 1][1]:
+                if lmList[tipIds[6]][1] < lmList[tipIds[6] - 1][1]:
                     fingers.append(1)
                 else:
                     fingers.append(0)
@@ -65,7 +63,9 @@ def analyze_fingers(sample: int, player) -> list:
         if keyboard.is_pressed("space"):
             return item, item2
 
-def translate(number):
+
+def translate(number: int) -> str:
+    """Detects if its 'schaar' 'steen' or 'papier'"""
     if number == 2 or number == 3:
         return "schaar"
     elif number == 5 or number == 4:
@@ -73,20 +73,19 @@ def translate(number):
     elif number is 0 or number is 1:
         return "steen"
 
-def logic(player1, player2):
+
+def logic(player1: str, player2: str) -> str:
+    """By the lack of 'switch case' in older versions of Python I used an ugly if if if case..."""
     if player1 is player2:
         return "Nobody"
-
     if player1 == "schaar" and player2 == "papier":
         return "player 1"
     if player1 == "papier" and player2 == "schaar":
         return "player 2"
-
     if player1 == "papier" and player2 == "steen":
         return "player 2"
     if player1 == "steen" and player2 == "papier":
         return "player 1"
-
     if player1 == "steen" and player2 == "schaar":
         return "player 1"
     if player1 == "schaar" and player2 == "steen":
@@ -97,7 +96,7 @@ def main():
     player1, player2 = analyze_fingers(10, player=1)
     result = (logic(player1, player2) + " WINS !!")
     cap = cv2.VideoCapture(0)
-    instance = HandDetector(maxHands=1)
+    instance = HandDetector(maxHands=3)
     while True:
         success, img = cap.read()
         img = instance.find_hands(img, draw=True)
@@ -106,8 +105,6 @@ def main():
         cv2.waitKey(1)
         if keyboard.is_pressed("space"):
             break
-
-
 
 if __name__ == "__main__":
     main()
